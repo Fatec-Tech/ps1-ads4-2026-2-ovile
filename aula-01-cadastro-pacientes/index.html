@@ -18,15 +18,20 @@
     <h1 class="mb-4">Cadastro de Pacientes</h1>
 
     <!-- Formulário de cadastro -->
-    <form id="form-paciente" class="row g-3 mb-5">
-      <div class="col-md-4">
+    <form id="form-paciente" class="row g-3 mb-4">
+      <div class="col-md-3">
         <label for="nome" class="form-label">Nome</label>
         <input type="text" class="form-control" id="nome" required>
       </div>
 
-      <div class="col-md-4">
+      <div class="col-md-3">
         <label for="email" class="form-label">E-mail</label>
         <input type="email" class="form-control" id="email" required>
+      </div>
+
+      <div class="col-md-2">
+        <label for="telefone" class="form-label">Telefone</label>
+        <input type="tel" class="form-control" id="telefone" required>
       </div>
 
       <div class="col-md-3">
@@ -38,15 +43,50 @@
         <button type="submit" class="btn btn-primary w-100">+</button>
       </div>
     </form>
+      <!-- Campo de busca -->
+    <div class="mb-4">
+
+      <label for="busca" class="form-label">
+        Buscar paciente por nome
+      </label>
+
+      <input
+        type="text"
+        class="form-control"
+        id="busca"
+        placeholder="Digite o nome do paciente..."
+      >
+
+    </div>
+
+
+    <!-- Contador -->
+    <h2 class="h4 mb-3">
+      Total de pacientes:
+      <span id="contador-pacientes">0</span>
+    </h2>
+
+
+
+  
 
     <!-- Tabela de pacientes -->
     <h2 class="h4 mb-3">Pacientes cadastrados</h2>
     <table class="table table-striped">
       <thead>
         <tr>
+          <!-- Clique para ordenar -->
+          <th
+            id="ordenar-nome"
+            style="cursor: pointer;"
+          >
           <th>Nome</th>
           <th>E-mail</th>
+            <th>Telefone</th>
           <th>Data de nascimento</th>
+          <th>Idade</th>
+
+          <th>Ações</th>
         </tr>
       </thead>
       <tbody id="tabela-pacientes">

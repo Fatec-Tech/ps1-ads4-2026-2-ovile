@@ -11,6 +11,13 @@ h1 {
 #tabela-pacientes tr {
   animation: fadeIn 0.3s ease-in;
 }
+#ordenar-nome {
+  cursor: pointer;
+}
+
+#ordenar-nome:hover {
+  background-color: #e9ecef;
+}
 
 @keyframes fadeIn {
   from { opacity: 0; }
