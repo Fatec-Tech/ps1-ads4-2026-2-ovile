@@ -1,32 +1,47 @@
 
+// =============================================
 // ARRAY DE PACIENTES
-// Carrega os pacientes salvos no localStorage.
-// Se não existir nenhum paciente salvo, começa com [].
+// =============================================
+
+// Recupera os pacientes salvos no localStorage.
+// Se não existir nenhum, começa com um array vazio.
 const pacientes = JSON.parse(
   localStorage.getItem('pacientes')
 ) || [];
 
 
-// REFERÊNCIAS DO DOM
+// =============================================
+// REFERÊNCIAS DO HTML
+// =============================================
 
-const formulario = document.getElementById('form-paciente');
+const formulario =
+  document.getElementById('form-paciente');
 
-const tabela = document.getElementById('tabela-pacientes');
+const tabela =
+  document.getElementById('tabela-pacientes');
 
-const contador = document.getElementById('contador-pacientes');
+const contador =
+  document.getElementById('contador-pacientes');
 
-const busca = document.getElementById('busca');
+const busca =
+  document.getElementById('busca');
 
-const ordenarNome = document.getElementById('ordenar-nome');
+const ordenarNome =
+  document.getElementById('ordenar-nome');
 
 
-// Controla a ordem da lista
+// =============================================
+// CONTROLE DA ORDENAÇÃO
+// =============================================
+
+// true = A → Z
+// false = Z → A
 let ordemCrescente = true;
 
 
-// =====================================================
-// SALVAR NO LOCALSTORAGE
-// =====================================================
+// =============================================
+// SALVAR PACIENTES
+// =============================================
 
 function salvarPacientes() {
 
@@ -36,32 +51,44 @@ function salvarPacientes() {
   );
 
 }
-// Função responsável por adicionar um paciente ao array
-function adicionarPaciente(nome, email, nascimento) { 
-  const novoPaciente = { nome, email, nascimento };
+
+
+// =============================================
+// ADICIONAR PACIENTE
+// =============================================
+
+function adicionarPaciente(
+  nome,
+  email,
+  telefone,
+  nascimento
+) {
+
+  const novoPaciente = {
+
+    nome: nome,
+
+    email: email,
+
+    telefone: telefone,
+
+    nascimento: nascimento
+
+  };
+
+
   pacientes.push(novoPaciente);
+
+
+  // Salva no localStorage
   salvarPacientes();
+
 }
 
-// Função responsável por desenhar a tabela inteira a partir do array
-function renderizarTabela() {
-  tabela.innerHTML = ''; // limpa a tabela antes de redesenhar
 
-  pacientes.forEach((paciente) => {
-    const linha = document.createElement('tr');
-
-    linha.innerHTML = `
-      <td>${paciente.nome}</td>
-      <td>${paciente.email}</td>
-      <td>${formatarData(paciente.nascimento)}</td>
-    `;
-
-    tabela.appendChild(linha);
-  });
-}
-// =====================================================
+// =============================================
 // CALCULAR IDADE
-// =====================================================
+// =============================================
 
 function calcularIdade(dataNascimento) {
 
@@ -69,16 +96,22 @@ function calcularIdade(dataNascimento) {
 
   const nascimento = new Date(dataNascimento);
 
+
   let idade =
     hoje.getFullYear() -
     nascimento.getFullYear();
 
-  const mesAtual = hoje.getMonth();
 
-  const mesNascimento = nascimento.getMonth();
+  const mesAtual =
+    hoje.getMonth();
+
+  const mesNascimento =
+    nascimento.getMonth();
 
 
-  // Verifica se já fez aniversário este ano
+  // Verifica se já fez aniversário
+  // neste ano.
+
   if (
     mesAtual < mesNascimento ||
     (
@@ -91,18 +124,37 @@ function calcularIdade(dataNascimento) {
 
   }
 
+
   return idade;
 
 }
 
-// Função utilitária só para formatar a data no padrão dd/mm/aaaa
+
+// =============================================
+// FORMATAR DATA
+// =============================================
+
 function formatarData(dataISO) {
-  const [ano, mes, dia] = dataISO.split('-');
+
+  const partes =
+    dataISO.split('-');
+
+
+  const ano = partes[0];
+
+  const mes = partes[1];
+
+  const dia = partes[2];
+
+
   return `${dia}/${mes}/${ano}`;
+
 }
-// =====================================================
+
+
+// =============================================
 // RENDERIZAR TABELA
-// =====================================================
+// =============================================
 
 function renderizarTabela(lista = pacientes) {
 
@@ -110,23 +162,34 @@ function renderizarTabela(lista = pacientes) {
   tabela.innerHTML = '';
 
 
-  // Percorre a lista que será exibida
+  // Percorre os pacientes
   lista.forEach((paciente) => {
 
-    // Descobre o índice ORIGINAL do paciente
-    const indice = pacientes.indexOf(paciente);
+    // Descobre o índice original
+    // dentro do array pacientes.
+    const indice =
+      pacientes.indexOf(paciente);
 
+
+    // Cria uma nova linha
     const linha =
       document.createElement('tr');
 
 
+    // Coloca os dados dentro da linha
     linha.innerHTML = `
 
-      <td>${paciente.nome}</td>
+      <td>
+        ${paciente.nome}
+      </td>
 
-      <td>${paciente.email}</td>
+      <td>
+        ${paciente.email}
+      </td>
 
-      <td>${paciente.telefone}</td>
+      <td>
+        ${paciente.telefone}
+      </td>
 
       <td>
         ${formatarData(paciente.nascimento)}
@@ -150,31 +213,33 @@ function renderizarTabela(lista = pacientes) {
     `;
 
 
+    // Adiciona a linha na tabela
     tabela.appendChild(linha);
 
   });
 
 
-  // Atualiza contador
+  // Atualiza o contador
   contador.textContent =
-    `Total de pacientes: ${lista.length}`;
+    pacientes.length;
 
 }
 
 
-// =====================================================
+// =============================================
 // REMOVER PACIENTE
-// =====================================================
+// =============================================
 
 function removerPaciente(indice) {
 
-  // Confirma antes de remover
+  // Pergunta antes de remover
   const confirmar =
     confirm(
       'Deseja realmente remover este paciente?'
     );
 
 
+  // Se clicar em Cancelar
   if (!confirmar) {
 
     return;
@@ -182,7 +247,7 @@ function removerPaciente(indice) {
   }
 
 
-  // Remove 1 elemento usando o índice
+  // Remove o paciente do array
   pacientes.splice(indice, 1);
 
 
@@ -195,32 +260,56 @@ function removerPaciente(indice) {
 
 }
 
-// Evento disparado quando o formulário é enviado
-formulario.addEventListener('submit', (event) => {
-  event.preventDefault(); // evita o recarregamento da página
 
-  const nome = document.getElementById('nome').value;
-  const email = document.getElementById('email').value;
-  const nascimento = document.getElementById('nascimento').value;
+// =============================================
+// FORMULÁRIO
+// =============================================
 
-  adicionarPaciente(nome, email, nascimento);
-  renderizarTabela();
+formulario.addEventListener(
+  'submit',
+  function (event) {
 
-  formulario.reset(); // limpa os campos do formulário
-})
-// =================================================
+    // Impede a página de recarregar
+    event.preventDefault();
+
+
+    // =========================================
+    // PEGAR VALORES DOS CAMPOS
+    // =========================================
+
+    const nome =
+      document.getElementById('nome').value.trim();
+
+
+    const email =
+      document.getElementById('email').value.trim();
+
+
+    const telefone =
+      document.getElementById('telefone').value.trim();
+
+
+    const nascimento =
+      document.getElementById('nascimento').value;
+
+
+
+    // =========================================
     // VERIFICAR E-MAIL DUPLICADO
-    // =================================================
+    // =========================================
 
     const emailJaExiste =
-      pacientes.some((paciente) => {
+      pacientes.some(
+        function (paciente) {
 
-        return paciente.email.toLowerCase()
-          === email.toLowerCase();
+          return paciente.email.toLowerCase()
+            === email.toLowerCase();
 
-      });
+        }
+      );
 
 
+    // Se já existir
     if (emailJaExiste) {
 
       alert(
@@ -232,7 +321,11 @@ formulario.addEventListener('submit', (event) => {
     }
 
 
-    // Adiciona o paciente
+
+    // =========================================
+    // ADICIONAR PACIENTE
+    // =========================================
+
     adicionarPaciente(
       nome,
       email,
@@ -241,41 +334,52 @@ formulario.addEventListener('submit', (event) => {
     );
 
 
-    // Atualiza a tabela
+
+    // =========================================
+    // ATUALIZAR TABELA
+    // =========================================
+
     renderizarTabela();
 
 
-    // Limpa o formulário
+
+    // =========================================
+    // LIMPAR FORMULÁRIO
+    // =========================================
+
     formulario.reset();
 
-  ;
+  }
+);
 
 
-// =====================================================
-// BUSCA POR NOME
-// =====================================================
+// =============================================
+// BUSCA EM TEMPO REAL
+// =============================================
 
 busca.addEventListener(
   'input',
-  () => {
+  function () {
 
-    // Texto digitado
+    // Pega o que foi digitado
     const texto =
       busca.value.toLowerCase();
 
 
     // Filtra os pacientes
     const pacientesFiltrados =
-      pacientes.filter((paciente) => {
+      pacientes.filter(
+        function (paciente) {
 
-        return paciente.nome
-          .toLowerCase()
-          .includes(texto);
+          return paciente.nome
+            .toLowerCase()
+            .includes(texto);
 
-      });
+        }
+      );
 
 
-    // Mostra somente os encontrados
+    // Mostra os resultados
     renderizarTabela(
       pacientesFiltrados
     );
@@ -284,16 +388,16 @@ busca.addEventListener(
 );
 
 
-// =====================================================
+// =============================================
 // ORDENAR POR NOME
-// =====================================================
+// =============================================
 
 ordenarNome.addEventListener(
   'click',
-  () => {
+  function () {
 
     pacientes.sort(
-      (a, b) => {
+      function (a, b) {
 
         const nomeA =
           a.nome.toLowerCase();
@@ -302,6 +406,7 @@ ordenarNome.addEventListener(
           b.nome.toLowerCase();
 
 
+        // A → Z
         if (nomeA < nomeB) {
 
           return ordemCrescente
@@ -311,6 +416,7 @@ ordenarNome.addEventListener(
         }
 
 
+        // Z → A
         if (nomeA > nomeB) {
 
           return ordemCrescente
@@ -320,13 +426,14 @@ ordenarNome.addEventListener(
         }
 
 
+        // Nomes iguais
         return 0;
 
       }
     );
 
 
-    // Inverte a próxima ordenação
+    // Inverte a próxima ordem
     ordemCrescente =
       !ordemCrescente;
 
@@ -335,18 +442,16 @@ ordenarNome.addEventListener(
     salvarPacientes();
 
 
-    // Atualiza tabela
+    // Atualiza a tabela
     renderizarTabela();
 
   }
 );
 
 
-// =====================================================
-// CARREGAR OS PACIENTES AO ABRIR A PÁGINA
-// =====================================================
+// =============================================
+// CARREGAR PACIENTES
+// =============================================
 
-// Quando a página abrir, mostra os pacientes
-// que estavam salvos anteriormente.
+// Executado quando a página abre
 renderizarTabela();
-;

@@ -1,25 +1,57 @@
-/* Estilos específicos da aplicação — o Bootstrap cuida do resto */
+/* ================================= */
+/* ESTILOS DA APLICAÇÃO */
+/* ================================= */
 
 body {
   background-color: #f8f9fa;
 }
 
+
+/* Título principal */
+
 h1 {
   color: #212529;
 }
 
+
+/* Animação das linhas da tabela */
+
 #tabela-pacientes tr {
   animation: fadeIn 0.3s ease-in;
 }
+
+
+/* Cabeçalho Nome */
+
 #ordenar-nome {
   cursor: pointer;
 }
+
+
+/* Quando passar o mouse no Nome */
 
 #ordenar-nome:hover {
   background-color: #e9ecef;
 }
 
+
+/* Botão Remover */
+
+.btn-danger {
+  cursor: pointer;
+}
+
+
+/* Animação */
+
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+
 }
