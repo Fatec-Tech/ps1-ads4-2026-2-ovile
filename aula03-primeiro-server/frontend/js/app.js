@@ -25,7 +25,7 @@ function atualizarContador() {
     }
 
     contador.innerHTML = `
-        Pacientes do arquivo JSON: ${pacientesJson} |
+        Pacientes vindos do servidor: ${pacientesJson} |
         Pacientes cadastrados manualmente: ${pacientesManuais}
     `;
 }
@@ -59,7 +59,7 @@ async function carregarPacientesIniciais() {
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
         // Busca os pacientes no servidor Node
-        const resposta = await fetch(URL_API);
+        const resposta = await fetch('https://api-clinica-pvnx.onrender.com/pacientes');
 
         console.log(resposta);
 
