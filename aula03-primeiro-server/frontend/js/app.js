@@ -1,126 +1,168 @@
-const pacientes = [];
-let pacientesJson = 0;
-let pacientesManuais = 0;
-
-// Agora os pacientes vêm do BACKEND
-const URL_API = 'http://localhost:3000/pacientes';
+// Para a aula local: servidor Node em http://localhost:3000
+// Antes de publicar, substitua esta URL pela URL do seu próprio backend no Render.
+const URL_API = 'https://api-clinica-pvnx.onrender.com/pacientes';
 
 const formulario = document.getElementById('form-paciente');
 const tabela = document.getElementById('tabela-pacientes');
+const mensagem = document.getElementById('mensagem');
 const mensagemCarregando = document.getElementById('carregando');
 
-function adicionarPaciente(nome, email, nascimento) {
-    pacientes.push({ nome, email, nascimento });
-}
+const campoId = document.getElementById('id');
+const campoNome = document.getElementById('nome');
+const campoEmail = document.getElementById('email');
+const campoNascimento = document.getElementById('nascimento');
+const botaoSalvar = document.getElementById('btn-salvar');
+const botaoCancelar = document.getElementById('btn-cancelar');
 
-function atualizarContador() {
-    let contador = document.getElementById('contador-origem');
-
-    if (!contador) {
-        contador = document.createElement('p');
-        contador.id = 'contador-origem';
-        contador.className = 'text-muted';
-
-        document.querySelector('.container').appendChild(contador);
-    }
-
-    contador.innerHTML = `
-        Pacientes vindos do servidor: ${pacientesJson} |
-        Pacientes cadastrados manualmente: ${pacientesManuais}
-    `;
-}
-
-function renderizarTabela() {
-    tabela.innerHTML = '';
-
-    pacientes.forEach((paciente) => {
-        const linha = document.createElement('tr');
-
-        linha.innerHTML = `
-            <td>${paciente.nome}</td>
-            <td>${paciente.email}</td>
-            <td>${formatarData(paciente.nascimento)}</td>
-        `;
-
-        tabela.appendChild(linha);
-    });
-}
+// ---------- Utilidades de interface ----------
 
 function formatarData(dataISO) {
-    const [ano, mes, dia] = dataISO.split('-');
-    return `${dia}/${mes}/${ano}`;
+  const [ano, mes, dia] = dataISO.split('-');
+  return `${dia}/${mes}/${ano}`;
 }
 
-async function carregarPacientesIniciais() {
-    try {
-        mensagemCarregando.textContent = 'Carregando pacientes...';
+function mostrarMensagem(texto, tipo = 'danger') {
+  mensagem.innerHTML = '';
+  const alerta = document.createElement('div');
+  alerta.className = `alert alert-${tipo}`;
+  alerta.textContent = texto; // textContent evita injeção de HTML
+  mensagem.appendChild(alerta);
+}
 
-        // Simula 1 segundo de espera
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+function criarCelula(texto) {
+  const celula = document.createElement('td');
+  celula.textContent = texto;
+  return celula;
+}
 
-        // Busca os pacientes no servidor Node
-        const resposta = await fetch('https://api-clinica-pvnx.onrender.com/pacientes');
+function renderizarTabela(pacientes) {
+  tabela.innerHTML = '';
 
-        console.log(resposta);
+  pacientes.forEach((paciente) => {
+    const linha = document.createElement('tr');
 
-        if (!resposta.ok) {
-            throw new Error(`Erro HTTP: ${resposta.status}`);
-        }
+    linha.appendChild(criarCelula(paciente.nome));
+    linha.appendChild(criarCelula(paciente.email));
+    linha.appendChild(criarCelula(formatarData(paciente.nascimento)));
 
-        const dados = await resposta.json();
+    const celulaAcoes = document.createElement('td');
 
-        pacientesJson = dados.length;
+    const botaoEditar = document.createElement('button');
+    botaoEditar.textContent = 'Editar';
+    botaoEditar.className = 'btn btn-sm btn-outline-primary me-2';
+    botaoEditar.addEventListener('click', () => iniciarEdicao(paciente));
 
-        if (dados.length === 0) {
-            tabela.innerHTML = `
-                <tr>
-                    <td colspan="3" class="text-center">
-                        Nenhum paciente cadastrado ainda
-                    </td>
-                </tr>
-            `;
+    const botaoExcluir = document.createElement('button');
+    botaoExcluir.textContent = 'Excluir';
+    botaoExcluir.className = 'btn btn-sm btn-outline-danger';
+    botaoExcluir.addEventListener('click', () => excluirPaciente(paciente.id));
 
-            atualizarContador();
-            mensagemCarregando.style.display = 'none';
-            return;
-        }
+    celulaAcoes.appendChild(botaoEditar);
+    celulaAcoes.appendChild(botaoExcluir);
+    linha.appendChild(celulaAcoes);
 
-        dados.forEach((paciente) => {
-            adicionarPaciente(
-                paciente.nome,
-                paciente.email,
-                paciente.nascimento
-            );
-        });
+    tabela.appendChild(linha);
+  });
+}
 
-        renderizarTabela();
-        atualizarContador();
+function iniciarEdicao(paciente) {
+  campoId.value = paciente.id;
+  campoNome.value = paciente.nome;
+  campoEmail.value = paciente.email;
+  campoNascimento.value = paciente.nascimento;
 
-        mensagemCarregando.style.display = 'none';
+  botaoSalvar.textContent = 'Atualizar';
+  botaoCancelar.classList.remove('d-none');
+  campoNome.focus();
+}
 
-    } catch (erro) {
-        console.error('Não foi possível carregar os pacientes:', erro);
+function limparFormulario() {
+  formulario.reset();
+  campoId.value = '';
+  botaoSalvar.textContent = 'Salvar';
+  botaoCancelar.classList.add('d-none');
+}
 
-        mensagemCarregando.textContent =
-            'Erro ao carregar pacientes. O servidor está rodando?';
+// ---------- Comunicação com a API (um método HTTP por operação) ----------
+
+// READ — GET /pacientes
+async function listarPacientes() {
+  try {
+    const resposta = await fetch(URL_API);
+
+    if (!resposta.ok) {
+      throw new Error(`Erro HTTP: ${resposta.status}`);
     }
+
+    const pacientes = await resposta.json();
+    renderizarTabela(pacientes);
+    mensagemCarregando.style.display = 'none';
+  } catch (erro) {
+    console.error(erro);
+    mensagemCarregando.style.display = 'none';
+    mostrarMensagem('Não foi possível carregar os pacientes. O servidor está no ar?');
+  }
 }
 
-formulario.addEventListener('submit', (event) => {
-    event.preventDefault();
+// CREATE (POST) ou UPDATE (PUT), conforme exista ou não um id
+async function salvarPaciente(dados, id) {
+  const metodo = id ? 'PUT' : 'POST';
+  const url = id ? `${URL_API}/${id}` : URL_API;
 
-    const nome = document.getElementById('nome').value;
-    const email = document.getElementById('email').value;
-    const nascimento = document.getElementById('nascimento').value;
+  const resposta = await fetch(url, {
+    method: metodo,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(dados), // objeto JS → texto JSON
+  });
 
-    adicionarPaciente(nome, email, nascimento);
+  if (!resposta.ok) {
+    const erro = await resposta.json();
+    throw new Error(erro.erro || `Erro HTTP: ${resposta.status}`);
+  }
+}
 
-    pacientesManuais++;
+// DELETE — DELETE /pacientes/:id
+async function excluirPaciente(id) {
+  if (!confirm('Deseja realmente excluir este paciente?')) {
+    return;
+  }
 
-    renderizarTabela();
-    atualizarContador();
+  try {
+    const resposta = await fetch(`${URL_API}/${id}`, { method: 'DELETE' });
 
-    formulario.reset();
+    if (!resposta.ok) {
+      throw new Error(`Erro HTTP: ${resposta.status}`);
+    }
+
+    mostrarMensagem('Paciente excluído com sucesso.', 'success');
+    await listarPacientes();
+  } catch (erro) {
+    console.error(erro);
+    mostrarMensagem('Não foi possível excluir o paciente.');
+  }
+}
+
+// ---------- Eventos ----------
+
+formulario.addEventListener('submit', async (event) => {
+  event.preventDefault();
+
+  const dados = {
+    nome: campoNome.value,
+    email: campoEmail.value,
+    nascimento: campoNascimento.value,
+  };
+
+  try {
+    await salvarPaciente(dados, campoId.value);
+    mostrarMensagem('Paciente salvo com sucesso.', 'success');
+    limparFormulario();
+    await listarPacientes(); // sempre relê do servidor: a fonte da verdade é a API
+  } catch (erro) {
+    mostrarMensagem(erro.message);
+  }
 });
 
-carregarPacientesIniciais();
+botaoCancelar.addEventListener('click', limparFormulario);
+
+listarPacientes();
