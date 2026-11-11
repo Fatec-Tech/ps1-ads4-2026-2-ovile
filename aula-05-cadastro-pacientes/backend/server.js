@@ -29,15 +29,47 @@ function tratarErro(res, erro) {
   res.status(500).json({ erro: 'Erro interno do servidor' });
 }
 
-// READ (lista) — GET /pacientes
+ // GET /pacientes - Lista todos ou filtra pelo nome
 app.get('/pacientes', async (req, res) => {
   try {
-    const resultado = await pool.query(`SELECT ${COLUNAS} FROM pacientes ORDER BY id`);
+    const nome = req.query.nome;
+
+    let resultado;
+
+    if (nome) {
+      resultado = await pool.query(
+        `SELECT ${COLUNAS} FROM pacientes
+         WHERE nome ILIKE $1
+         ORDER BY id`,
+        [`%${nome}%`]
+      );
+    } else {
+      resultado = await pool.query(
+        `SELECT ${COLUNAS} FROM pacientes ORDER BY id`
+      );
+    }
+
     res.json(resultado.rows);
   } catch (erro) {
     tratarErro(res, erro);
   }
 });
+
+ // GET /pacientes/total - Retorna a quantidade de pacientes
+app.get('/pacientes/total', async (req, res) => {
+  try {
+    const resultado = await pool.query(
+      'SELECT COUNT(*) FROM pacientes'
+    );
+
+    const total = Number(resultado.rows[0].count);
+
+    res.json({ total });
+  } catch (erro) {
+    tratarErro(res, erro);
+  }
+});
+
 
 // READ (um) — GET /pacientes/:id
 app.get('/pacientes/:id', async (req, res) => {
