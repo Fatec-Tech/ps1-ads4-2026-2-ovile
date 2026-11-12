@@ -44,6 +44,7 @@ function renderizarTabela(pacientes) {
     linha.appendChild(criarCelula(paciente.nome));
     linha.appendChild(criarCelula(paciente.email));
     linha.appendChild(criarCelula(formatarData(paciente.nascimento)));
+    linha.appendChild(criarCelula(paciente.criado_em || '-'));
 
     const celulaAcoes = document.createElement('td');
 
