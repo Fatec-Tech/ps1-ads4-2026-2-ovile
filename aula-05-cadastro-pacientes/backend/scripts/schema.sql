@@ -10,6 +10,10 @@ CREATE TABLE IF NOT EXISTS pacientes (
 ALTER TABLE pacientes
 ADD COLUMN IF NOT EXISTS telefone VARCHAR(20);
 
+ALTER TABLE pacientes
+ADD COLUMN IF NOT EXISTS criado_em TIMESTAMP DEFAULT NOW();
+
+
 -- Dados iniciais (os mesmos das aulas anteriores)
 INSERT INTO pacientes (nome, email, nascimento) VALUES
   ('Maria Silva',  'maria.silva@email.com',  '1990-04-12'),

@@ -7,7 +7,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const COLUNAS = 'id, nome, email, nascimento';
+const COLUNAS = "id, nome, email, nascimento, TO_CHAR(criado_em, 'DD/MM/YYYY HH24:MI') AS criado_em";
 
 function dadosValidos(corpo) {
   const { nome, email, nascimento } = corpo ?? {};
